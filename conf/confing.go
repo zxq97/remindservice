@@ -3,8 +3,10 @@ package conf
 import (
 	"github.com/bradfitz/gomemcache/memcache"
 	"github.com/go-redis/redis"
+	"github.com/jinzhu/gorm"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"time"
 	"upper.io/db.v3/lib/sqlbuilder"
 	"upper.io/db.v3/mysql"
 )
@@ -92,4 +94,15 @@ func GetMysql(addr string) (sqlbuilder.Database, error) {
 		return nil, err
 	}
 	return r, nil
+}
+
+func GetGorm(addr string) (*gorm.DB, error) {
+	db, err := gorm.Open("mysql", addr)
+	if err != nil {
+		return nil, err
+	}
+	db.DB().SetConnMaxLifetime(time.Minute * 3)
+	db.DB().SetMaxIdleConns(10)
+	db.DB().SetMaxOpenConns(50)
+	return db, nil
 }
