@@ -34,6 +34,10 @@ func (rs *RemindService) AddUnread(ctx context.Context, req *remind_service.Remi
 	return addUnread(ctx, req.Uid, req.RemindType)
 }
 
+func (rs *RemindService) AddBatchUnread(ctx context.Context, req *remind_service.RemindBatchRequest, res *remind_service.EmptyResponse) error {
+	return addBatchUnread(ctx, req.Uids, req.RemindType)
+}
+
 func (rs *RemindService) DeleteUnread(ctx context.Context, req *remind_service.RemindInfo, res *remind_service.EmptyResponse) error {
 	return deleteUnread(ctx, req.Uid, req.RemindType)
 }
