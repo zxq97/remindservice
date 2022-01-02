@@ -26,7 +26,7 @@ func main() {
 	}
 
 	etcdRegistry := etcd.NewRegistry(func(options *registry.Options) {
-		options.Addrs = []string{remindConf.Etcd.Addr}
+		options.Addrs = remindConf.Etcd.Addr
 	})
 
 	service := micro.NewService(
