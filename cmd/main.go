@@ -5,6 +5,7 @@ import (
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/registry/etcd"
 	"remindservice/conf"
+	"remindservice/global"
 	"remindservice/rpc/remind/pb"
 	"remindservice/server"
 )
@@ -16,6 +17,15 @@ var (
 
 func main() {
 	remindConf, err = conf.LoadYaml(conf.RemindConfPath)
+	if err != nil {
+		panic(err)
+	}
+
+	global.InfoLog, err = conf.InitLog(remindConf.InfoLog.Path)
+	if err != nil {
+		panic(err)
+	}
+	global.ExcLog, err = conf.InitLog(remindConf.ExcLog.Path)
 	if err != nil {
 		panic(err)
 	}
