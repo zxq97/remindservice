@@ -21,11 +21,15 @@ func main() {
 		panic(err)
 	}
 
-	global.InfoLog, err = conf.InitLog(remindConf.InfoLog.Path)
+	global.InfoLog, err = conf.InitLog(remindConf.LogPath.Info)
 	if err != nil {
 		panic(err)
 	}
-	global.ExcLog, err = conf.InitLog(remindConf.ExcLog.Path)
+	global.ExcLog, err = conf.InitLog(remindConf.LogPath.Exc)
+	if err != nil {
+		panic(err)
+	}
+	global.DebugLog, err = conf.InitLog(remindConf.LogPath.Debug)
 	if err != nil {
 		panic(err)
 	}

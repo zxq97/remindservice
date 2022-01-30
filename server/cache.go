@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v8"
 	"remindservice/global"
 	"remindservice/util/constant"
 	"time"
@@ -16,7 +16,7 @@ const (
 
 func cacheAddUnread(ctx context.Context, uid int64, rType int32) error {
 	key := fmt.Sprintf(RedisKeyUnread, uid, rType)
-	err := redisCli.Set(key, 1, RedisKeyUnreadTTl).Err()
+	err := redisCli.Set(ctx, key, 1, RedisKeyUnreadTTl).Err()
 	if err != nil {
 		global.ExcLog.Printf("ctx %v cacheAddUnread uid %v rtype %v err %v", ctx, uid, rType, err)
 	}
@@ -34,15 +34,15 @@ func cacheAddBatchUnread(ctx context.Context, uids []int64, rType int32) error {
 		keys = append(keys, key)
 		keys = append(keys, "1")
 		if len(keys) == constant.BatchSize || k == len(uids)-1 {
-			err = redisCli.MSet(keys).Err()
+			err = redisCli.MSet(ctx, keys).Err()
 			if err != nil {
 				global.ExcLog.Printf("ctx %v mset keys %v err %v", ctx, keys, err)
 			}
 			pipe := redisCli.Pipeline()
 			for _, x := range keys {
-				pipe.Expire(x, RedisKeyUnreadTTl)
+				pipe.Expire(ctx, x, RedisKeyUnreadTTl)
 			}
-			_, err = pipe.Exec()
+			_, err = pipe.Exec(ctx)
 			if err != nil {
 				global.ExcLog.Printf("ctx %v set expire keys %v err %v", ctx, keys, err)
 			}
@@ -54,7 +54,7 @@ func cacheAddBatchUnread(ctx context.Context, uids []int64, rType int32) error {
 
 func cacheDeleteUnread(ctx context.Context, uid int64, rType int32) error {
 	key := fmt.Sprintf(RedisKeyUnread, uid, rType)
-	err := redisCli.Del(key).Err()
+	err := redisCli.Del(ctx, key).Err()
 	if err != nil {
 		global.ExcLog.Printf("ctx %v cacheDeleteUnread uid %v rtype %v err %v", ctx, uid, rType, err)
 	}
@@ -63,7 +63,7 @@ func cacheDeleteUnread(ctx context.Context, uid int64, rType int32) error {
 
 func cacheCheckUnread(ctx context.Context, uid int64, rType int32) (bool, error) {
 	key := fmt.Sprintf(RedisKeyUnread, uid, rType)
-	ok, err := redisCli.Exists(key).Result()
+	ok, err := redisCli.Exists(ctx, key).Result()
 	if err != nil && err != redis.Nil {
 		global.ExcLog.Printf("ctx %v cacheCheckUnread uid %v rtype %v err %v", ctx, uid, rType, err)
 		return false, err
